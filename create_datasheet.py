@@ -4,7 +4,10 @@ from os.path import isfile, join
 listoflines = []
 dict = {}
 
-with open('dict.csv', 'rb') as d:
+
+def (createDefinitionDatasheet)
+def (create )
+with open('dictionary.csv', 'rb') as d:
     reader = csv.reader(d)
     for line in reader:
         dict[line[0]] = line[2] + "," + line[3]
