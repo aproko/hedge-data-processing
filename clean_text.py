@@ -11,8 +11,9 @@ input_directory = sys.argv[1]
 onlyfiles = [ f for f in listdir(input_directory) if (isfile(join(input_directory,f)) and ".cmp.txt" in f) ]
 
 
-cleanLines = []
+
 for files in onlyfiles:
+    cleanLines = []
     with open(join(input_directory,files), 'rU') as fileToClean:
         for line in fileToClean:
             #We take out all the html markup tags
