@@ -7,5 +7,6 @@ if [ $# -ne 2 ]
 else
     python clean_text.py "$1"
     python create_datasheet.py "$1" "$2"
+    python data_analysis.py "$1"
     echo "Done"
 fi
