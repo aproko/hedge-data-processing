@@ -6,54 +6,56 @@ import csv
 input_directory = sys.argv[1]
 mode = sys.argv[2]
 
+output_filename = "data_analysis_" + mode + ".csv"
+
 wc = 0
 sentcount = 0
 hedgecount = 0
 outlines = []
-total_hedgecount = 0
 
-prevsent = ""
+onlyfiles = [f for f in listdir(input_directory) if (isfile(join(input_directory,f)))]
 
-if "amt" in mode:
-    onlyfile = [f for f in listdir(input_directory) if (isfile(join(input_directory,f)) and ".amt.csv" in f)]
-    print onlyfile
+if "amt" == mode:
+    
+    onlyfile = [f for f in onlyfiles if ".amt.csv" in f]
+
+    #This file is a csv file of the format: sentence, hedge, hedging definition, non-hedging definition, Turker judgment, agreement
     for amt_file in onlyfile:
         with open(join(input_directory, amt_file), 'rU') as amt_f:
+            prevsent = ""
             reader = csv.reader(amt_f)
-            for l in reader:
-                sent = l[0]
-                judg = l[4]
+            for line in reader:
+                sent = line[0]
+                judg = line[4]
                 if sent != prevsent:
                     sentcount = sentcount + 1
                     sent_wds = sent.split(" ")
                     wc = wc + len(sent_wds)
                     sent = prevsent
-                if "n" not in judg:
+                if "y" in judg:
                         hedgecount = hedgecount + 1
 
-total_hedgecount = hedgecount
-onlyfiles = ["amt_file"]
 totalwc = wc
 totalsentcount = sentcount
 totalhRelcount = "NA"
 totalhPropcount = "NA"
+total_hedgecount = hedgecount
 
 
 
                 
             
 if "gold" in mode:
-#We are only interested in files from the input directory that contain .cmp.txt
-    onlyfiles = [ f for f in listdir(input_directory) if (isfile(join(input_directory,f)) and ".anno.txt" in f) ]
-
-
+    
+#We are only interested in files from the input directory that contain .anno.txt - these are plain text files with one sentence per line.
+    onlyfile = [ f for f in onlyfiles if ".anno.txt" in f ]
 
     totalwc = 0
     totalsentcount = 0
     totalhRelcount = 0
     totalhPropcount = 0
 
-    for files in onlyfiles:
+    for files in onlyfile:
         with open(join(input_directory, files), 'rU') as file:
             file_wordcount = 0
             file_sentcount = 0
@@ -76,9 +78,10 @@ if "gold" in mode:
             totalhPropcount = totalhPropcount + file_hPropcount
 
             outlines.append(",".join([files, str(file_wordcount), str(file_sentcount), str(float(file_wordcount)/float(file_sentcount)), str(file_hRelcount), str(file_hPropcount), str(file_hRelcount+file_hPropcount), str(float(file_hedgecount)/float(file_wordcount)), str(float(file_hedgecount)/float(file_sentcount))]))
+
     total_hedgecount = totalhRelcount + totalhPropcount
 
-with open("data_analysis1.csv", 'w') as outfile:
+with open(output_filename, 'w') as outfile:
     outfile.write("Document,WordCount,SentenceCount,Words/Sentence,hRelCount,hPropCount,TotalHedges,Hedges/Total Words,Hedges/Sentence")
     outfile.write("\n")
     for output_lines in outlines:

@@ -1,12 +1,11 @@
 #!bin/bash
 
-if [ $# -ne 2 ]
-    then
-        echo "The first argument must be the directory containing the input files; the second argument must be the number of sentences per HIT in our AMT datasheet; the third is the mode for data analysis - amt or gold, which determines which subset of data will be analyzed"
-        exit
-else
-    python clean_text.py "$1"
-    python create_datasheet.py "$1" "$2"
-    python data_analysis.py "$1" "$3"
-    echo "Done"
-fi
+    while getopts 'cdna*' flag; do
+        case "${flag}" in
+            c) python clean_text.py "$2"; echo "Cleaning Input Text" ;;
+            d) python create_datasheet.py "$2" "$3"; echo "Creating Datasheet" ;;
+            n) python data_analysis.py "$2" "$3"; echo "Analyzing $3 data" ;;
+            a) python clean_text.py "$2"; python create_datasheet.py "$2" "$3"; echo "Running the entire pipeline" ;;
+        esac
+    done
+
