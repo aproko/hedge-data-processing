@@ -162,7 +162,6 @@ for files in onlyfiles:
     soup = BeautifulSoup(open(join(input_directory, files)), "lxml")
     paragraph = unicode(soup.get_text())
     para_encoded = map(unicode(paragraph))
-
     
     
     #We use nltk to parse the the entire document into sentences
@@ -188,7 +187,7 @@ for files in onlyfiles:
     with codecs.open(outfilename, 'w', encoding='utf-8') as cleanFile:
         for item in numberedLines:
             cleanFile.write(unicode(item[0]))
-            cleanFile.write(",")
+            cleanFile.write("::")
             cleanFile.write(unicode(item[1]))
             #cleanFile.write(",".join([str(item[0]), item[1]]))
             cleanFile.write("\n")

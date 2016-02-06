@@ -28,6 +28,7 @@ numSentPerHIT = int(sys.argv[2])
 partitionNum = int(sys.argv[3])
 totalEx = int(sys.argv[4])
 
+
 lemmatizer = WordNetLemmatizer()
 
 #Dictionary is in the format: hedge, type of hedge, definition of that type of hedge, the hedging definition of that word, the hedging example of that word, the non-hedging definition of that word, the non-hedging example of that word
@@ -49,6 +50,7 @@ def readIn(filename, mode):
 
 def findHedges(id, orig_sentence, sentence, mode, total_dict):
     words = sentence.split()
+    orig_word = ""
     
     #If we're looking for multi-word hedges, we add all potential ngrams (up to 6) that could be in the sentence to the list of words
     if mode == "multi":
@@ -68,11 +70,17 @@ def findHedges(id, orig_sentence, sentence, mode, total_dict):
         
     multi_line = sentence
                                 
-    for word in words:
+    for word_index in range(0,len(words)):    #)word in words:
+        word = words[word_index]
+        if word_index > 0:
+            prev_word = words[word_index - 1]
+        else:
+            prev_word = ""
         if mode == "single":
+            orig_word = str(word)
             word = lemmatizer.lemmatize(word)
                                 
-        if word in dictionary:
+        if word in dictionary and prev_word != "to" and prev_word != "you":
             entry = id + ",\"" + orig_sentence + "\"," + word + "," + ",".join(dictionary[word])
             listoflines.append(entry)
                             
@@ -117,10 +125,12 @@ def output(filename, listToPrint, mode):
         gold = list(gold_qs)
             
         for item in listToPrint:
-            if count < (totalEx // numSentPerHIT):
+            #if mode == "defs":
+            if 1 == 1:
+            #if count < (totalEx // numSentPerHIT):
                 if b == 0:
                     if mode == "defs":
-                        temp_defs = ",".join(gold.pop())
+                        temp_defs = ",".join(random.choice(gold))
                     elif mode == "uncert":
                         temp_defs = item
                     b += 1
@@ -134,6 +144,8 @@ def output(filename, listToPrint, mode):
                     count += 1
         if b != 0:
             out_defs.write(temp_defs)
+            out_defs.write("\n")
+                       
     
     
 
@@ -178,14 +190,14 @@ def main():
         para_list = paragraph.split("\n")
 
         for lines in para_list:
-            id_and_line = lines.split(",")
+            id_and_line = lines.split("::")
             line = id_and_line[1]
             id = id_and_line[0]
             
             #Checking again that sentences are at least 3 words long.
             if len(line.split()) > 2:
                 #For the uncertainty determination and confidence level datasheet, we just need the sentence which will be annotated
-                uncert.append(id + ",\""+line + "\"")
+                #uncert.append(id + ",\""+line + "\"")
                 multi_line = findHedges(id, line, line, "multi", total_dict)
                 temp_str = findHedges(id, line, multi_line, "single", total_dict)
 
@@ -193,10 +205,10 @@ def main():
         partitionUncert()
 
 
-    output('amt_input_defs_examples_lem.csv', listoflines, "defs")
-    output('amt_input_uncert_lem.csv', uncert, "uncert")
-    output('amt_input_defs_examples_lem_PART.csv', part_listoflines, "defs")
-    output('amt_input_uncert_lem_PART.csv', part_uncert, "uncert")
+    output('amt_input_defs_ex_lem.csv', listoflines, "defs")
+    output('amt_input_unc_lem.csv', uncert, "uncert")
+#  output('amt_input_defs_examples_lem_PART.csv', part_listoflines, "defs")
+#   output('amt_input_uncert_lem_PART.csv', part_uncert, "uncert")
 
     with codecs.open('amt_hedge_counts.csv', 'w', encoding='utf-8') as data_out:
         for hedge, counts in hedge_counts.items():
